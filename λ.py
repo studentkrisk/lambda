@@ -10,21 +10,18 @@ class Token:
         self.type = type
         self.value = value
     def __repr__(self):
-        return "{" + self.type + ": " + str(self.value) + "}"
+        return self.type + ": " + str(self.value)
 class Lexer:
     def __init__(self, d):
         self.cur = 0
         self.d = d
         self.toks = []
-        while self.cur < len(self.d):
-            self.toks.append(self.tokenize())
-            self.cur += 1
-        self.toks.append(Token("EOF", None))
-
-    def tokenize(self):
+    def next(self):
         while self.d[self.cur] in whitespace:
             self.cur += 1
         char = self.d[self.cur]
+        self.cur += 1
+        print(char)
         if char in "λ.()":
             return Token(char, None)
         else:
@@ -41,27 +38,42 @@ class Application:
     def __init__(self, left, right):
         self.left = left
         self.right = right
+    def __repr__(self):
+        return f"({self.left} {self.right})"
 class Var:
     def __init__(self, name):
         self.name = name
     def __repr__(self):
-        return self.name.value
+        return self.name
 class Parser:
-    def __init__(self, toks):
-        self.toks = toks
-        print(self.parse(self.toks))
-    def parse(self, toks):
-        if toks[0].type == "λ":
-            return Function(Var(toks[1]), self.parse(toks[3:]))
+    def __init__(self, lexer):
+        self.lexer = lexer
+        print(self.parse())
+    def parse(self):
+        new = self.lexer.next()
+        if new.type == "λ":
+            return self.create_function()
+        elif new.type == "(":
+            return self.create_application()
         elif len(toks) > 1:
-            return Application(self.parse(toks[:-2]), self.parse(toks[-1]))
+            return Application(self.parse(toks[:-2]), Var(toks[-1].value))
+        else:
+            return Var(toks[0].value)
+    def create_function(self):
+        var = Var(self.lexer.next().value)
+        self.lexer.next()
+        return Function(var, self.parse())
+    def create_application(self):
+        left = self.parse()
+        right = self.parse()
+        return Application(left, right)
 
 
 # toks = {}
 # for i in data:
 #     toks[i.split(" ")[0]] = Lexer(" ".join(i.split(" ")[2:])).toks
 
-Parser(Lexer(data[0]).toks)
+Parser(Lexer(data[0]))
 
 
 # toks = []
