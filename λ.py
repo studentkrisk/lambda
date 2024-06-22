@@ -55,10 +55,8 @@ class Parser:
             return self.create_function()
         elif new.type == "(":
             return self.create_application()
-        elif len(toks) > 1:
-            return Application(self.parse(toks[:-2]), Var(toks[-1].value))
         else:
-            return Var(toks[0].value)
+            return Var(new.value)
     def create_function(self):
         var = Var(self.lexer.next().value)
         self.lexer.next()

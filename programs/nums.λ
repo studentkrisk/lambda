@@ -1,4 +1,4 @@
-λm.λn.λf.λx.m f (n f x) λf.λx.f x λf.λx.f (f x)
+λp.λq.((p λx.λy.x) λx.λy.x)
 0 = λf.λx.x
 1 = λf.λx.f x
 2 = λf.λx.f (f x)
