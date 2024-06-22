@@ -33,7 +33,7 @@ class Function:
         self.var = var
         self.exp = exp
     def __repr__(self):
-        return f"λ{self.var}.{self.exp}"
+        return f"(λ{self.var}.{self.exp})"
 class Application:
     def __init__(self, left, right):
         self.left = left
@@ -44,7 +44,7 @@ class Var:
     def __init__(self, name):
         self.name = name
     def __repr__(self):
-        return self.name
+        return f"({self.name})"
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -62,8 +62,10 @@ class Parser:
         self.lexer.next()
         return Function(var, self.parse())
     def create_application(self):
+        self.lexer.next()
         left = self.parse()
         right = self.parse()
+        self.lexer.next()
         return Application(left, right)
 
 
