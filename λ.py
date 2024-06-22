@@ -21,7 +21,6 @@ class Lexer:
             self.cur += 1
         char = self.d[self.cur]
         self.cur += 1
-        print(char)
         if char in "λ.()":
             return Token(char, None)
         else:
@@ -33,7 +32,7 @@ class Function:
         self.var = var
         self.exp = exp
     def __repr__(self):
-        return f"(λ{self.var}.{self.exp})"
+        return f"λ{self.var}.{self.exp}"
 class Application:
     def __init__(self, left, right):
         self.left = left
@@ -44,65 +43,33 @@ class Var:
     def __init__(self, name):
         self.name = name
     def __repr__(self):
-        return f"({self.name})"
+        return self.name
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
-        print(self.parse())
+        x = self.parse()
+        print(x.var)
+        print(x.exp)
     def parse(self):
         new = self.lexer.next()
         if new.type == "λ":
+            print(f"new function! {new}")
             return self.create_function()
         elif new.type == "(":
+            print(f"new application! {new}")
             return self.create_application()
         else:
+            print(f"new variable! {new}")
             return Var(new.value)
     def create_function(self):
         var = Var(self.lexer.next().value)
         self.lexer.next()
         return Function(var, self.parse())
     def create_application(self):
-        self.lexer.next()
         left = self.parse()
         right = self.parse()
         self.lexer.next()
         return Application(left, right)
 
 
-# toks = {}
-# for i in data:
-#     toks[i.split(" ")[0]] = Lexer(" ".join(i.split(" ")[2:])).toks
-
 Parser(Lexer(data[0]))
-
-
-# toks = []
-# for d in data:
-#     tok = []
-#     cur = 0
-#     while cur < len(d):
-#         if d[cur] in "λ.=\n" or 97 <= ord(d[cur]) <= 122 or 40 <= ord(d[cur]) <= 41:
-#             tok.append(d[cur])
-#         if 65 <= ord(d[cur]) <= 90:
-#             var = ""
-#             while cur < len(d) and (65 <= ord(d[cur]) <= 90 or 48 <= ord(d[cur]) <= 57):
-#                 var += d[cur]
-#                 cur += 1
-#             tok.append(var)
-#         cur += 1
-#     toks.append(tok)
-# print(toks)
-
-# dct = {}
-# for i in toks:
-#     dct[i[0]] = list(map(lambda x : dct[x] if 65 <= ord(x[0]) <= 90 or 48 <= ord(x) <= 57 else x, i[2:]))
-# print(dct["OUT"])
-
-# def create_ast(x):
-#     if x[0] == "λ":
-#         return [x[1], create_ast(x[3:])]
-#     if x[0] == "(":
-#         print(x)
-#         return [create_ast(x[1:x.index(")")] + x[x.index(")")+1:])]
-#     return x
-# print(create_ast(["(", "x", ")"]))
