@@ -33,8 +33,8 @@ class Function:
         self.exp = exp
     def a_red(self, v1, v2):
         return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
-    def b_red(self, o):
-        return self.exp.a_red(self.var, o)
+    def b_red(self):
+        return Function(self.var, self.exp.b_red())
     def __repr__(self):
         return f"λ{self.var}.{self.exp}"
 class Application:
@@ -46,10 +46,10 @@ class Application:
     def b_red(self):
         if type(self.left) == Var:
             return self
-        elif type(self.left) == Application:
-            return self.left.b_red().b_red(self.right)
-        elif type(self.left) == Function:
-            return self.left.b_red(self.right)
+        l_func = self.left
+        if type(self.left) == Application:
+            l_func = self.left.b_red()
+        return l_func.exp.a_red(l_func.var, self.right.b_red()).b_red()
     def __repr__(self):
         return f"({self.left} {self.right})"
 class Var:
@@ -58,6 +58,8 @@ class Var:
     def a_red(self, v1, v2):
         if self.name == v1.name:
             return v2
+        return self
+    def b_red(self):
         return self
     def __repr__(self):
         return self.name
