@@ -17,14 +17,21 @@ class Lexer:
         self.d = d
         self.toks = []
     def next(self):
+        if self.cur >= len(self.d):
+            return Token("*", None) # EOF
         while self.d[self.cur] in whitespace:
             self.cur += 1
         char = self.d[self.cur]
         self.cur += 1
+        print(char)
         if char in "λ.()":
             return Token(char, None)
         else:
             return Token("SYMBOL", char)
+    def prev(self):
+        self.cur -= 1
+        while self.d[self.cur] in whitespace:
+            self.cur -= 1
 
 #parser
 class Function:
@@ -80,11 +87,19 @@ class Parser:
             print(f"new function! {new}")
             return self.create_function()
         elif new.type == "(":
-            print(f"new application! {new}")
-            return self.create_application()
+            print("new parenthesis!")
+            x = self.parse()
+            self.lexer.next()
+            return x
         else:
-            print(f"new variable! {new}")
-            return Var(new.value)
+            print(self.parse())
+
+        # elif new.type == "(":
+        #     print(f"new application! {new}")
+        #     return self.create_application()
+        # else:
+        #     print(f"new variable! {new}")
+        #     return Var(new.value)
     def create_function(self):
         var = Var(self.lexer.next().value)
         self.lexer.next()
@@ -92,7 +107,6 @@ class Parser:
     def create_application(self):
         left = self.parse()
         right = self.parse()
-        self.lexer.next()
         return Application(left, right)
 
 
