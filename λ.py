@@ -79,32 +79,31 @@ class Parser:
         self.lexer = lexer
         x = self.parse()
         print(x)
-        x = x.b_red()
-        print(x)
+        # x = x.b_red()
+        # print(x)
     def parse(self):
         new = self.lexer.next()
         if new.type == "λ":
             print(f"new function! {new}")
             return self.create_function()
         elif new.type == "(":
-            print("new parenthesis!")
+            print("new parenthetical!")
             x = self.parse()
-            self.lexer.next()
             return x
         else:
-            print(self.parse())
-
-        # elif new.type == "(":
-        #     print(f"new application! {new}")
-        #     return self.create_application()
-        # else:
-        #     print(f"new variable! {new}")
-        #     return Var(new.value)
+            next = self.lexer.next()
+            self.lexer.prev()
+            if next.type in "*)":
+                print(f"new variable! {new}")
+                return Var(new.value)
+            print(f"new application! {new}")
+            return self.create_application()
     def create_function(self):
         var = Var(self.lexer.next().value)
         self.lexer.next()
         return Function(var, self.parse())
     def create_application(self):
+        self.lexer.prev()
         left = self.parse()
         right = self.parse()
         return Application(left, right)

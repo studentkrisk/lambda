@@ -1,3 +1,1 @@
-λx.(x x)
-(λn.λf.λx.f (n f x)) (λf.λx.x)
-((λm.λn.λf.λx.(m (f ((n f) x))) λf.λx.(f (f x))) λf.λx.(f (f (f x))))
+(λx.xxx)
