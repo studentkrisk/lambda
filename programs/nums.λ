@@ -1,2 +1,5 @@
-(λx.(x x) λz.(z z))
+(λn.λf.λx.(f ((n f) x)) λf.λx.x)
+λf.λx.(f ((λf.λx.x f) x))
+λf.λx.x f
+
 ((λm.λn.λf.λx.(m (f ((n f) x))) λf.λx.(f (f x))) λf.λx.(f (f (f x))))

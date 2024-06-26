@@ -32,11 +32,9 @@ class Function:
         self.var = var
         self.exp = exp
     def a_red(self, v1, v2):
-        self.var.a_red(v1, v2)
-        self.exp.a_red(v1, v2)
+        return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
     def b_red(self, o):
-        if type(self.exp) == Var:
-            self.exp = o
+        return self.exp.a_red(self.var, o)
     def __repr__(self):
         return f"λ{self.var}.{self.exp}"
 class Application:
@@ -44,23 +42,23 @@ class Application:
         self.left = left
         self.right = right
     def a_red(self, v1, v2):
-        self.left.a_red(v1, v2)
-        self.right.a_red(v1, v2)
+        return Application(self.left.a_red(v1, v2), self.right.a_red(v1, v2))
     def b_red(self):
-        if type(self.left) == Function:
-            self.left.b_red(self.right)
+        if type(self.left) == Var:
+            return self
         elif type(self.left) == Application:
-            while type(self.left) != Function:
-                self.left.b_red()
-            self.left.b_red(self.right)
+            return self.left.b_red().b_red(self.right)
+        elif type(self.left) == Function:
+            return self.left.b_red(self.right)
     def __repr__(self):
         return f"({self.left} {self.right})"
 class Var:
     def __init__(self, name):
         self.name = name
     def a_red(self, v1, v2):
-        if self.name == v1:
-            self.name = v2
+        if self.name == v1.name:
+            return v2
+        return self
     def __repr__(self):
         return self.name
 class Parser:
@@ -68,10 +66,8 @@ class Parser:
         self.lexer = lexer
         x = self.parse()
         print(x)
-        a = Application(Var("λy.y"), Var("x"))
-        a.b_red()
-        print(a)
-        x.a_red("p", "placeholder")
+        x = x.b_red()
+        print(x)
     def parse(self):
         new = self.lexer.next()
         if new.type == "λ":
