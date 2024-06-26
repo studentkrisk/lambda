@@ -34,6 +34,7 @@ class Function:
     def a_red(self, v1, v2):
         return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
     def b_red(self):
+        print(self)
         return Function(self.var, self.exp.b_red())
     def __repr__(self):
         return f"λ{self.var}.{self.exp}"
@@ -44,11 +45,14 @@ class Application:
     def a_red(self, v1, v2):
         return Application(self.left.a_red(v1, v2), self.right.a_red(v1, v2))
     def b_red(self):
+        print(self)
         if type(self.left) == Var:
-            return self
+            return Application(self.left.b_red(), self.right.b_red())
         l_func = self.left
         if type(self.left) == Application:
             l_func = self.left.b_red()
+            if type(l_func) == Application:
+                return l_func
         return l_func.exp.a_red(l_func.var, self.right.b_red()).b_red()
     def __repr__(self):
         return f"({self.left} {self.right})"
