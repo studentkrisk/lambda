@@ -31,25 +31,37 @@ class Function:
     def __init__(self, var, exp):
         self.var = var
         self.exp = exp
+    def a_red(self, v1, v2):
+        self.var.a_red(v1, v2)
+        self.exp.a_red(v1, v2)
     def __repr__(self):
         return f"λ{self.var}.{self.exp}"
 class Application:
     def __init__(self, left, right):
         self.left = left
         self.right = right
+    def a_red(self, v1, v2):
+        self.left.a_red(v1, v2)
+        self.right.a_red(v1, v2)
+    def b_red(self):
+        if type(self.left) == Var:
+            pass
     def __repr__(self):
         return f"({self.left} {self.right})"
 class Var:
     def __init__(self, name):
         self.name = name
+    def a_red(self, v1, v2):
+        if self.name == v1:
+            self.name = v2
     def __repr__(self):
         return self.name
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         x = self.parse()
-        print(x.var)
-        print(x.exp)
+        print(x)
+        x.a_red("p", "placeholder")
     def parse(self):
         new = self.lexer.next()
         if new.type == "λ":
