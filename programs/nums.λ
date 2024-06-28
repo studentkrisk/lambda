@@ -1,1 +1,6 @@
-(λx.xxx)
+0 = λf.λx.x
+1 = λf.λx.(f x)
+2 = λf.λx.(f (f x))
+PLUS = λm.λn.λf.λx.((m f) ((n f) x))
+SUCC = λn.λf.λx.(f ((n f) x))
+OUT = ((PLUS 1) 1)

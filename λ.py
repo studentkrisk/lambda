@@ -23,7 +23,7 @@ class Lexer:
             self.cur += 1
         char = self.d[self.cur]
         self.cur += 1
-        print(char)
+        # print(char)
         if char in "λ.()":
             return Token(char, None)
         else:
@@ -34,17 +34,26 @@ class Lexer:
             self.cur -= 1
 
 #parser
+vars = {}
+cur_var_num = 0
+def get_name(x):
+    while x.isnumeric():
+        x = vars[x]
+    return x
 class Function:
     def __init__(self, var, exp):
-        self.var = var
-        self.exp = exp
+        global cur_var_num
+        cur_var_num += 1
+        vars[str(cur_var_num)] = var.name
+        self.var = var.a_red(var, Var(str(cur_var_num)))
+        self.exp = exp.a_red(var, Var(str(cur_var_num)))
     def a_red(self, v1, v2):
         return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
     def b_red(self):
         print(self)
         return Function(self.var, self.exp.b_red())
     def __repr__(self):
-        return f"λ{self.var}.{self.exp}"
+        return f"λ{get_name(self.var.name)}.{self.exp.a_red(self.var, Var(get_name(self.var.name)))}"
 class Application:
     def __init__(self, left, right):
         self.left = left
@@ -62,7 +71,7 @@ class Application:
                 return l_func
         return l_func.exp.a_red(l_func.var, self.right.b_red()).b_red()
     def __repr__(self):
-        return f"({self.left} {self.right})"
+        return f"({self.left if type(self.left) != Var else get_name(self.left.name)} {self.right if type(self.right) != Var else get_name(self.right.name)})"
 class Var:
     def __init__(self, name):
         self.name = name
@@ -77,36 +86,32 @@ class Var:
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
-        x = self.parse()
-        print(x)
-        # x = x.b_red()
-        # print(x)
     def parse(self):
         new = self.lexer.next()
         if new.type == "λ":
-            print(f"new function! {new}")
+            # print(f"new function! {new}")
             return self.create_function()
         elif new.type == "(":
-            print("new parenthetical!")
-            x = self.parse()
+            # print("new application!")
+            x = self.create_application()
             return x
         else:
-            next = self.lexer.next()
-            self.lexer.prev()
-            if next.type in "*)":
-                print(f"new variable! {new}")
-                return Var(new.value)
-            print(f"new application! {new}")
-            return self.create_application()
+            return Var(new.value)
     def create_function(self):
         var = Var(self.lexer.next().value)
         self.lexer.next()
         return Function(var, self.parse())
     def create_application(self):
-        self.lexer.prev()
         left = self.parse()
         right = self.parse()
+        self.lexer.next()
         return Application(left, right)
 
 
-Parser(Lexer(data[0]))
+dict = {}
+for var in data:
+    var = var.split(" = ")
+    for other_var in dict.items():
+        var[1] = var[1].replace(other_var[0], other_var[1])
+    dict[var[0]] = var[1]
+print(Parser(Lexer(dict["OUT"])).parse().b_red())
