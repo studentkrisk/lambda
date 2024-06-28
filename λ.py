@@ -50,8 +50,10 @@ class Function:
     def a_red(self, v1, v2):
         return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
     def b_red(self):
-        print(self)
-        return Function(self.var, self.exp.b_red())
+        # print(self)
+        x = Function(self.var, self.exp.b_red())
+        # print(f"created function: {x}")
+        return x
     def __repr__(self):
         return f"λ{get_name(self.var.name)}.{self.exp.a_red(self.var, Var(get_name(self.var.name)))}"
 class Application:
@@ -61,15 +63,19 @@ class Application:
     def a_red(self, v1, v2):
         return Application(self.left.a_red(v1, v2), self.right.a_red(v1, v2))
     def b_red(self):
-        print(self)
+        # print(self)
         if type(self.left) == Var:
-            return Application(self.left.b_red(), self.right.b_red())
-        l_func = self.left
-        if type(self.left) == Application:
-            l_func = self.left.b_red()
-            if type(l_func) == Application:
-                return l_func
-        return l_func.exp.a_red(l_func.var, self.right.b_red()).b_red()
+            x = Application(self.left, self.right.b_red())
+            # print(f"created application {x}")
+            return x
+        l_func = self.left.b_red()
+        if type(l_func) == Application:
+            x = Application(l_func, self.right)
+            # print(f"created applciation {x}")
+            return x
+        x = l_func.exp.a_red(l_func.var, self.right).b_red()
+        # print(f"created function {x}")
+        return x
     def __repr__(self):
         return f"({self.left if type(self.left) != Var else get_name(self.left.name)} {self.right if type(self.right) != Var else get_name(self.right.name)})"
 class Var:
@@ -107,11 +113,17 @@ class Parser:
         self.lexer.next()
         return Application(left, right)
 
-
 dict = {}
 for var in data:
     var = var.split(" = ")
     for other_var in dict.items():
         var[1] = var[1].replace(other_var[0], other_var[1])
     dict[var[0]] = var[1]
-print(Parser(Lexer(dict["OUT"])).parse().b_red())
+whole = Parser(Lexer(dict["OUT"])).parse()
+whole = whole.b_red()
+print(whole)
+inv_dict = {str(Parser(Lexer(v)).parse().b_red()): k for k, v in dict.items() if k != "OUT"}
+try:
+    print(inv_dict[str(whole)])
+except KeyError:
+    print("Undefined")
