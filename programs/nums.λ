@@ -1,11 +1,14 @@
+#include church 720
+
 SUCC = λn.λf.λx.(f ((n f) x))
-PLUS = λm.λn.λf.λx.((m f) ((n f) x))
 MULT = λm.λn.λf.(m (n f))
-0 = λf.λx.x
-1 = (SUCC 0)
-2 = (SUCC 1)
-3 = (SUCC 2)
-4 = (SUCC 3)
-5 = (SUCC 4)
-6 = (SUCC 5)
-OUT = ((PLUS 1) 1)
+PRED = λn.λf.λx.(((n λg.λh.(h (g f))) λu.x) λu.u)
+SUB = λm.λn.((n PRED) m)
+
+TRUE = λx.λy.x
+FALSE = λx.λy.y
+IFTHENELSE = λp.λa.λb.((p a) b)
+ISZERO = λn.((n λx.FALSE) TRUE)
+
+FACT = λf.λn.(((IFTHENELSE (ISZERO n)) 1) ((MULT n) ((f f) (PRED n))))
+OUT = ((FACT FACT) 6)

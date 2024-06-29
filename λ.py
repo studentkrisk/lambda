@@ -115,10 +115,24 @@ class Parser:
 
 dict = {}
 for var in data:
-    var = var.split(" = ")
+    if var == '' or var[:1] == "//":
+        continue
+    elif var[0] == "#":
+        inc = var.split(" ")[1:]
+        match inc[0]:
+            case "church":
+                dict["0"] = "λf.λx.x"
+                for i in range(1, int(inc[1])+1):
+                    dict[str(i)] = f"λf.λx.{i*'(f '} x){(i-1)*')'}"
+    else:
+        var = var.split(" = ")
+        dict[var[0]] = var[1]
+for var in dict.items():
+    v1 = var[1]
     for other_var in dict.items():
-        var[1] = var[1].replace(other_var[0], other_var[1])
-    dict[var[0]] = var[1]
+        v1 = v1.replace(other_var[0], other_var[1])
+    dict[var[0]] = v1
+print(dict["OUT"])
 whole = Parser(Lexer(dict["OUT"])).parse()
 whole = whole.b_red()
 print(whole)
