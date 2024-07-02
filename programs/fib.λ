@@ -1,0 +1,9 @@
+#import churchnums 100
+
+++ = λn.λf.λx.(f ((n f) x))
+-- = λn.λf.λx.(((n λg.λh.(h (g f))) λu.x) λu.u)
+- = λm.λn.((n --) m)
+
+FIB = (((IFTHENELSE)))
+
+OUT = ((FIB FIB) 10)

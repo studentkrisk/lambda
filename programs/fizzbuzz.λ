@@ -13,6 +13,6 @@ PAIR = λx.λy.λf.((f x) y)
 FIRST = λp.(p TRUE)
 SECOND = λp.(p FALSE)
 
-RECURSE = λf.λn.(((IFTHENELSE (ISZERO ((- 10) n))) n) n)
+RECURSE = λf.λn.(((IFTHENELSE (ISZERO ((- 6) n))) n) (++ n))
 
-OUT = ((RECURSE RECURSE) 10)
+OUT = 3

@@ -52,9 +52,7 @@ class Function:
         return Function(self.var.a_red(v1, v2), self.exp.a_red(v1, v2))
     def b_red(self):
         # print(self)
-        x = Function(self.var, self.exp.b_red())
-        # print(f"created function: {x}")
-        return x
+        return Function(self.var, self.exp.b_red())
     def __repr__(self):
         return f"λ{get_name(self.var.name)}.{self.exp.a_red(self.var, Var(get_name(self.var.name)))}"
 class Application:
@@ -64,19 +62,12 @@ class Application:
     def a_red(self, v1, v2):
         return Application(self.left.a_red(v1, v2), self.right.a_red(v1, v2))
     def b_red(self):
-        # print(self)
         if type(self.left) == Var:
-            x = Application(self.left, self.right.b_red())
-            # print(f"created application {x}")
-            return x
+            return Application(self.left, self.right.b_red())
         l_func = self.left.b_red()
         if type(l_func) == Application:
-            x = Application(l_func, self.right)
-            # print(f"created applciation {x}")
-            return x
-        x = l_func.exp.a_red(l_func.var, self.right).b_red()
-        # print(f"created function {x}")
-        return x
+            return Application(l_func, self.right)
+        return l_func.exp.a_red(l_func.var, self.right).b_red()
     def __repr__(self):
         return f"({self.left if type(self.left) != Var else get_name(self.left.name)} {self.right if type(self.right) != Var else get_name(self.right.name)})"
 class Var:
