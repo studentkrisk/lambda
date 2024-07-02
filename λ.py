@@ -1,7 +1,8 @@
+import sys
 from string import whitespace
 
 data = ""
-with open("programs/nums.λ", "r") as f:
+with open(f"{sys.argv[1]}", "r") as f:
     data = f.read().split("\n")
 
 # lexer
@@ -10,7 +11,7 @@ class Token:
         self.type = type
         self.value = value
     def __repr__(self):
-        return self.type + ": " + str(self.value)
+        return self.type if self.type != "SYMBOL" else self.value
 class Lexer:
     def __init__(self, d):
         self.cur = 0
@@ -94,6 +95,8 @@ class Parser:
         self.lexer = lexer
     def parse(self):
         new = self.lexer.next()
+        if new.type == "*":
+            raise SyntaxError(f"Expected 'λ', '(', or variable, got 'EOF'")
         if new.type == "λ":
             # print(f"new function! {new}")
             return self.create_function()
@@ -102,10 +105,19 @@ class Parser:
             x = self.create_application()
             return x
         else:
+            if new.type != "SYMBOL":
+                raise SyntaxError(f"Expected variable, got {new}")
             return Var(new.value)
     def create_function(self):
-        var = Var(self.lexer.next().value)
-        self.lexer.next()
+        var = self.lexer.next()
+        if var.type != "SYMBOL":
+            raise SyntaxError(f"Expected variable, got '{var}'")
+        var = Var(var.value)
+
+        dot = self.lexer.next()
+        if dot.type != ".":
+            raise SyntaxError(f"Expected '.', got '{dot}'")
+        
         return Function(var, self.parse())
     def create_application(self):
         left = self.parse()
@@ -115,14 +127,13 @@ class Parser:
 
 dict = {}
 for var in data:
-    if var == '' or var[:1] == "//":
+    if var == '' or var[:2] == "//":
         continue
     elif var[0] == "#":
         inc = var.split(" ")[1:]
         match inc[0]:
-            case "church":
-                dict["0"] = "λf.λx.x"
-                for i in range(1, int(inc[1])+1):
+            case "churchnums":
+                for i in range(int(inc[1])+1)[::-1]:
                     dict[str(i)] = f"λf.λx.{i*'(f '} x){(i-1)*')'}"
     else:
         var = var.split(" = ")

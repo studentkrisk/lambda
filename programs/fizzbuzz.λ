@@ -1,0 +1,18 @@
+#include churchnums 100
+
+++ = λn.λf.λx.(f ((n f) x))
+-- = λn.λf.λx.(((n λg.λh.(h (g f))) λu.x) λu.u)
+- = λm.λn.((n --) m)
+
+TRUE = λx.λy.x
+FALSE = λx.λy.y
+IFTHENELSE = λp.λa.λb.((p a) b)
+ISZERO = λn.((n λx.FALSE) TRUE)
+
+PAIR = λx.λy.λf.((f x) y)
+FIRST = λp.(p TRUE)
+SECOND = λp.(p FALSE)
+
+RECURSE = λf.λn.(((IFTHENELSE (ISZERO ((- 10) n))) n) n)
+
+OUT = ((RECURSE RECURSE) 10)
